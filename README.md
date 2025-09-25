@@ -30,17 +30,20 @@ Uma ferramenta automatizada de descoberta de perfis do LinkedIn que busca perfis
 ### Configuração
 
 1. Clone o repositório:
+
 ```bash
 git clone https://github.com/yourusername/linkedin-url-finder.git
 cd linkedin-url-finder
 ```
 
 2. Instale as dependências:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. Configure o ChromeDriver:
+
 ```bash
 python setup_chromedriver.py
 ```
@@ -50,6 +53,7 @@ python setup_chromedriver.py
 ### Início Rápido
 
 Execute o script principal de produção:
+
 ```bash
 python linkedin_production.py
 ```
@@ -66,6 +70,7 @@ python linkedin_production.py
 ### Verificar Progresso
 
 Monitore seu progresso a qualquer momento:
+
 ```bash
 python check_progress.py
 ```
@@ -86,6 +91,7 @@ python check_progress.py
 ## 📊 Estrutura de Dados
 
 ### Formato CSV de Entrada
+
 ```csv
 Nome,Data da Colação,Curso,Faculdade
 João Silva,29/08/2025,Engenharia Civil,UNESP
@@ -93,11 +99,12 @@ Maria Santos,07/02/2025,Ciência da Computação,UNESP
 ```
 
 ### Formato JSON de Saída
+
 ```json
 {
   "id": "abc12345",
   "Nome": "João Silva",
-  "Curso": "Engenharia Civil", 
+  "Curso": "Engenharia Civil",
   "Faculdade": "UNESP",
   "Data da Colação": "29/08/2025",
   "LinkedIn URL": "https://linkedin.com/in/joaosilva",
@@ -162,6 +169,7 @@ python check_progress.py
 ```
 
 Mostra:
+
 - Total de perfis encontrados
 - Porcentagem de progresso
 - Registros restantes para processar
@@ -183,6 +191,7 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 ## ⚠️ Aviso Legal
 
 Esta ferramenta é para fins educacionais e de pesquisa. Por favor, certifique-se de cumprir com:
+
 - Termos de Serviço do LinkedIn
 - Leis locais de proteção de dados (LGPD, GDPR, CCPA, etc.)
 - Práticas éticas de web scraping
