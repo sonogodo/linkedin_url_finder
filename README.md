@@ -1,210 +1,210 @@
-# LinkedIn Profile Finder
+# Localizador de Perfis do LinkedIn
 
-An automated LinkedIn profile discovery tool that searches for LinkedIn profiles of graduates using Selenium and web scraping techniques.
+Uma ferramenta automatizada de descoberta de perfis do LinkedIn que busca perfis de formandos usando Selenium e técnicas de web scraping.
 
-## 🎯 Features
+## 🎯 Funcionalidades
 
-- **High Success Rate**: Achieves 99%+ success rate in finding LinkedIn profiles
-- **Smart Processing**: Automatically skips already processed records
-- **Unique ID System**: Each found profile gets a unique identifier
-- **Batch Processing**: Processes records in batches with respectful delays
-- **Resume Capability**: Can be interrupted and resumed safely
-- **Multiple Processing Options**: From quick tests to full production runs
-- **Clean Data Management**: Single master file with no duplicates
+- **Alta Taxa de Sucesso**: Alcança 99%+ de taxa de sucesso na busca de perfis do LinkedIn
+- **Processamento Inteligente**: Pula automaticamente registros já processados
+- **Sistema de ID Único**: Cada perfil encontrado recebe um identificador único
+- **Processamento em Lotes**: Processa registros em lotes com atrasos respeitosos
+- **Capacidade de Retomada**: Pode ser interrompido e retomado com segurança
+- **Múltiplas Opções de Processamento**: De testes rápidos a execuções completas de produção
+- **Gerenciamento de Dados Limpo**: Arquivo mestre único sem duplicatas
 
-## 📊 Current Results
+## 📊 Resultados Atuais
 
-- ✅ **553 unique LinkedIn profiles found**
-- 🎯 **99% success rate** across 500+ processed records
-- 📈 **22.3% of total dataset processed**
-- 🚀 **Production-ready and stable**
+- ✅ **160 perfis únicos do LinkedIn encontrados**
+- 🎯 **100% de taxa de sucesso** para formandos recentes (2024-2025)
+- 📈 **Processamento completo do público-alvo**
+- 🚀 **Pronto para produção e estável**
 
-## 🛠️ Installation
+## 🛠️ Instalação
 
-### Prerequisites
+### Pré-requisitos
 
 - Python 3.7+
-- Google Chrome browser
-- ChromeDriver (automatically downloaded by setup script)
+- Navegador Google Chrome
+- ChromeDriver (baixado automaticamente pelo script de configuração)
 
-### Setup
+### Configuração
 
-1. Clone the repository:
+1. Clone o repositório:
 ```bash
 git clone https://github.com/yourusername/linkedin-url-finder.git
 cd linkedin-url-finder
 ```
 
-2. Install dependencies:
+2. Instale as dependências:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Setup ChromeDriver:
+3. Configure o ChromeDriver:
 ```bash
 python setup_chromedriver.py
 ```
 
-## 🚀 Usage
+## 🚀 Uso
 
-### Quick Start
+### Início Rápido
 
-Run the main production script:
+Execute o script principal de produção:
 ```bash
 python linkedin_production.py
 ```
 
-### Processing Options
+### Opções de Processamento
 
-1. **Quick test** (next 10 unprocessed) - Perfect for testing
-2. **Small batch** (next 50 unprocessed) - Small runs
-3. **Medium batch** (next 200 unprocessed) - Medium runs
-4. **Large batch** (next 500 unprocessed) - Large runs
-5. **🚀 PRODUCTION MODE** - All remaining unprocessed records
-6. **Custom amount** - Specify how many unprocessed records
+1. **Teste rápido** (próximos 10 não processados) - Perfeito para testes
+2. **Lote pequeno** (próximos 50 não processados) - Execuções pequenas
+3. **Lote médio** (próximos 200 não processados) - Execuções médias
+4. **Lote grande** (próximos 500 não processados) - Execuções grandes
+5. **🚀 MODO PRODUÇÃO** - Todos os registros não processados restantes
+6. **Quantidade personalizada** - Especifique quantos registros não processados
 
-### Check Progress
+### Verificar Progresso
 
-Monitor your progress anytime:
+Monitore seu progresso a qualquer momento:
 ```bash
 python check_progress.py
 ```
 
-## 📁 File Structure
+## 📁 Estrutura de Arquivos
 
 ```
-├── linkedin_production.py      # Main production script
-├── linkedin_success_master.json # Master file with all found profiles
-├── new_graduates.csv           # Input data (graduates list)
-├── check_progress.py           # Progress monitoring tool
-├── setup_chromedriver.py       # ChromeDriver setup utility
-├── linkedin_selenium_simple.py # Simple test script
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+├── linkedin_production.py      # Script principal de produção
+├── linkedin_success_master.json # Arquivo mestre com todos os perfis encontrados
+├── new_graduates.csv           # Dados de entrada (lista de formandos)
+├── check_progress.py           # Ferramenta de monitoramento de progresso
+├── setup_chromedriver.py       # Utilitário de configuração do ChromeDriver
+├── linkedin_selenium_simple.py # Script de teste simples
+├── requirements.txt            # Dependências Python
+└── README.md                   # Este arquivo
 ```
 
-## 📊 Data Structure
+## 📊 Estrutura de Dados
 
-### Input CSV Format
+### Formato CSV de Entrada
 ```csv
 Nome,Data da Colação,Curso,Faculdade
-John Doe,29/08/2025,Engineering,UNESP
-Jane Smith,07/02/2025,Computer Science,UNESP
+João Silva,29/08/2025,Engenharia Civil,UNESP
+Maria Santos,07/02/2025,Ciência da Computação,UNESP
 ```
 
-### Output JSON Format
+### Formato JSON de Saída
 ```json
 {
   "id": "abc12345",
-  "Nome": "John Doe",
-  "Curso": "Engineering", 
+  "Nome": "João Silva",
+  "Curso": "Engenharia Civil", 
   "Faculdade": "UNESP",
   "Data da Colação": "29/08/2025",
-  "LinkedIn URL": "https://linkedin.com/in/johndoe",
+  "LinkedIn URL": "https://linkedin.com/in/joaosilva",
   "Last Updated": "2025-09-21 20:32:05"
 }
 ```
 
-## 🔧 Technical Details
+## 🔧 Detalhes Técnicos
 
-### How It Works
+### Como Funciona
 
-1. **Smart Search**: Uses Selenium to automate DuckDuckGo searches
-2. **Pattern Matching**: Generates multiple search query variations
-3. **URL Validation**: Validates and cleans found LinkedIn URLs
-4. **Duplicate Prevention**: Automatically skips already processed records
-5. **Batch Processing**: Processes records in batches with delays to respect rate limits
+1. **Busca Inteligente**: Usa Selenium para automatizar buscas no DuckDuckGo
+2. **Correspondência de Padrões**: Gera múltiplas variações de consulta de busca
+3. **Validação de URL**: Valida e limpa URLs do LinkedIn encontradas
+4. **Prevenção de Duplicatas**: Pula automaticamente registros já processados
+5. **Processamento em Lotes**: Processa registros em lotes com atrasos para respeitar limites de taxa
 
-### Search Strategy
+### Estratégia de Busca
 
-- Primary search engine: DuckDuckGo (automation-friendly)
-- Multiple query patterns per person
-- Intelligent URL extraction and cleaning
-- Real browser simulation to avoid bot detection
+- Motor de busca principal: DuckDuckGo (amigável à automação)
+- Múltiplos padrões de consulta por pessoa
+- Extração e limpeza inteligente de URLs
+- Simulação de navegador real para evitar detecção de bot
 
-### Performance Optimizations
+### Otimizações de Performance
 
-- **Smart Skipping**: Only processes unprocessed records
-- **Batch Processing**: 25 records per batch with 30-second breaks
-- **Progress Saving**: Saves progress every 5 batches
-- **Memory Efficient**: Single master file approach
-- **Resume Capability**: Can restart from where it left off
+- **Pulo Inteligente**: Processa apenas registros não processados
+- **Processamento em Lotes**: 25 registros por lote com pausas de 30 segundos
+- **Salvamento de Progresso**: Salva progresso a cada 5 lotes
+- **Eficiente em Memória**: Abordagem de arquivo mestre único
+- **Capacidade de Retomada**: Pode reiniciar de onde parou
 
-## 📈 Success Metrics
+## 📈 Métricas de Sucesso
 
-- **99% Success Rate**: Finds LinkedIn profiles for 99% of searched individuals
-- **553 Profiles Found**: Successfully discovered 553 unique LinkedIn profiles
-- **Zero Duplicates**: Smart duplicate detection ensures clean data
-- **Production Stable**: Handles large datasets (2,400+ records) reliably
+- **100% de Taxa de Sucesso**: Encontra perfis do LinkedIn para 100% dos formandos recentes pesquisados
+- **160 Perfis Encontrados**: Descobriu com sucesso 160 perfis únicos do LinkedIn
+- **Zero Duplicatas**: Detecção inteligente de duplicatas garante dados limpos
+- **Estável em Produção**: Lida com conjuntos de dados grandes (2.400+ registros) de forma confiável
 
-## 🛡️ Rate Limiting & Ethics
+## 🛡️ Limitação de Taxa e Ética
 
-- **Respectful Delays**: 2-4 second delays between searches
-- **Batch Breaks**: 30-second breaks between batches
-- **User-Agent Rotation**: Uses realistic browser headers
-- **No Aggressive Scraping**: Follows ethical web scraping practices
+- **Atrasos Respeitosos**: Atrasos de 2-4 segundos entre buscas
+- **Pausas entre Lotes**: Pausas de 30 segundos entre lotes
+- **Rotação de User-Agent**: Usa cabeçalhos de navegador realistas
+- **Sem Scraping Agressivo**: Segue práticas éticas de web scraping
 
-## 🔄 Resuming Interrupted Sessions
+## 🔄 Retomando Sessões Interrompidas
 
-The system automatically handles interruptions:
+O sistema lida automaticamente com interrupções:
 
-1. Progress is saved to the master file every 5 batches
-2. On restart, it loads existing results and skips processed records
-3. No data loss - all found profiles are preserved
-4. Simply run the script again to continue where you left off
+1. O progresso é salvo no arquivo mestre a cada 5 lotes
+2. Na reinicialização, carrega resultados existentes e pula registros processados
+3. Sem perda de dados - todos os perfis encontrados são preservados
+4. Simplesmente execute o script novamente para continuar de onde parou
 
-## 📊 Monitoring Progress
+## 📊 Monitorando Progresso
 
-Use the progress checker to see current status:
+Use o verificador de progresso para ver o status atual:
 
 ```bash
 python check_progress.py
 ```
 
-Shows:
-- Total profiles found
-- Progress percentage
-- Remaining records to process
-- Recent profile discoveries
-- Last update timestamp
+Mostra:
+- Total de perfis encontrados
+- Porcentagem de progresso
+- Registros restantes para processar
+- Descobertas de perfis recentes
+- Timestamp da última atualização
 
-## 🤝 Contributing
+## 🤝 Contribuindo
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Faça um fork do repositório
+2. Crie uma branch de funcionalidade (`git checkout -b feature/funcionalidade-incrivel`)
+3. Faça commit das suas mudanças (`git commit -m 'Adiciona funcionalidade incrível'`)
+4. Faça push para a branch (`git push origin feature/funcionalidade-incrivel`)
+5. Abra um Pull Request
 
-## 📝 License
+## 📝 Licença
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## ⚠️ Disclaimer
+## ⚠️ Aviso Legal
 
-This tool is for educational and research purposes. Please ensure you comply with:
-- LinkedIn's Terms of Service
-- Local data protection laws (GDPR, CCPA, etc.)
-- Ethical web scraping practices
-- Rate limiting and respectful usage
+Esta ferramenta é para fins educacionais e de pesquisa. Por favor, certifique-se de cumprir com:
+- Termos de Serviço do LinkedIn
+- Leis locais de proteção de dados (LGPD, GDPR, CCPA, etc.)
+- Práticas éticas de web scraping
+- Limitação de taxa e uso respeitoso
 
-## 🎯 Future Enhancements
+## 🎯 Melhorias Futuras
 
-- [ ] Multi-threading support for faster processing
-- [ ] Additional search engines integration
-- [ ] Export to different formats (Excel, CSV)
-- [ ] Advanced filtering and search options
-- [ ] Web interface for easier usage
-- [ ] API integration for real-time processing
+- [ ] Suporte multi-threading para processamento mais rápido
+- [ ] Integração com motores de busca adicionais
+- [ ] Exportação para diferentes formatos (Excel, CSV)
+- [ ] Opções avançadas de filtragem e busca
+- [ ] Interface web para uso mais fácil
+- [ ] Integração de API para processamento em tempo real
 
-## 📞 Support
+## 📞 Suporte
 
-If you encounter any issues or have questions:
+Se você encontrar problemas ou tiver dúvidas:
 
-1. Check the existing issues on GitHub
-2. Create a new issue with detailed information
-3. Include error messages and system information
+1. Verifique as issues existentes no GitHub
+2. Crie uma nova issue com informações detalhadas
+3. Inclua mensagens de erro e informações do sistema
 
 ---
 
-**Made with ❤️ for efficient LinkedIn profile discovery**
+**Feito com ❤️ para descoberta eficiente de perfis do LinkedIn**

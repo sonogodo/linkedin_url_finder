@@ -116,11 +116,11 @@ def update_master_success_file(new_success_records, existing_data):
             json.dump(recent_existing_data, f, ensure_ascii=False, indent=2)
         
         if added_count > 0:
-            print(f"   📅 Added {added_count} recent graduates (2024-2025) to master file")
+            print(f"   📅 Adicionados {added_count} formandos recentes (2024-2025) ao arquivo mestre")
         
         return len(recent_existing_data)
     except Exception as e:
-        print(f"❌ Error saving master file: {e}")
+        print(f"❌ Erro ao salvar arquivo mestre: {e}")
         return len(recent_existing_data)
 
 def search_linkedin_profile(driver, name, university):
@@ -177,7 +177,7 @@ def search_linkedin_profile(driver, name, university):
 
 def process_batch(driver, df_batch, batch_num, total_batches, existing_names=None):
     """Process a batch of records with smart skipping."""
-    print(f"\n📦 Batch {batch_num}/{total_batches} - Processing {len(df_batch)} records")
+    print(f"\n📦 Lote {batch_num}/{total_batches} - Processando {len(df_batch)} registros")
     print("-" * 60)
     
     results = []
@@ -198,7 +198,7 @@ def process_batch(driver, df_batch, batch_num, total_batches, existing_names=Non
         
         # Skip if already processed (double-check for production mode)
         if existing_names and name in existing_names:
-            print("⏭️  Already processed")
+            print("⏭️  Já processado")
             skipped_count += 1
             continue
         
@@ -219,13 +219,13 @@ def process_batch(driver, df_batch, batch_num, total_batches, existing_names=Non
         results.append(result)
         
         if linkedin_url:
-            print(f"✅ Found")
+            print(f"✅ Encontrado")
             found_count += 1
             # Add to existing names to avoid future duplicates in same session
             if existing_names is not None:
                 existing_names.add(name)
         else:
-            print(f"❌ Not found")
+            print(f"❌ Não encontrado")
         
         # Random delay to avoid rate limiting
         delay = random.uniform(2, 4)
@@ -233,9 +233,9 @@ def process_batch(driver, df_batch, batch_num, total_batches, existing_names=Non
     
     processed_count = len(df_batch) - skipped_count
     if skipped_count > 0:
-        print(f"\nBatch {batch_num} complete: {found_count}/{processed_count} found ({found_count/processed_count*100:.1f}%), {skipped_count} skipped")
+        print(f"\nLote {batch_num} completo: {found_count}/{processed_count} encontrados ({found_count/processed_count*100:.1f}%), {skipped_count} pulados")
     else:
-        print(f"\nBatch {batch_num} complete: {found_count}/{len(df_batch)} found ({found_count/len(df_batch)*100:.1f}%)")
+        print(f"\nLote {batch_num} completo: {found_count}/{len(df_batch)} encontrados ({found_count/len(df_batch)*100:.1f}%)")
     
     return results, found_count
 
@@ -266,30 +266,30 @@ def load_existing_results():
             # If we filtered out old graduates, update the master file
             if len(recent_data) < len(all_data):
                 filtered_count = len(all_data) - len(recent_data)
-                print(f"🔄 Filtered out {filtered_count} older graduates (keeping only 2024-2025)")
+                print(f"🔄 Filtrados {filtered_count} formandos mais antigos (mantendo apenas 2024-2025)")
                 
                 # Save the filtered data back to master file
                 with open(master_file, 'w', encoding='utf-8') as f:
                     json.dump(recent_data, f, ensure_ascii=False, indent=2)
             
-            print(f"✅ Loaded {len(existing_data)} recent graduates (2024-2025) from {master_file}")
+            print(f"✅ Carregados {len(existing_data)} formandos recentes (2024-2025) de {master_file}")
             
         except Exception as e:
-            print(f"❌ Error loading {master_file}: {e}")
+            print(f"❌ Erro ao carregar {master_file}: {e}")
             existing_data = []
     else:
-        print("📝 No existing master file found - starting fresh")
+        print("📝 Nenhum arquivo mestre existente encontrado - iniciando do zero")
     
     return existing_names, existing_urls, existing_data
 
 def main():
-    print("🚀 LinkedIn Production Search")
+    print("🚀 Busca de Produção LinkedIn")
     print("=" * 50)
     
     # Load CSV
     try:
         df = pd.read_csv('new_graduates.csv', encoding='utf-8')
-        print(f"📊 Loaded {len(df)} records")
+        print(f"📊 Carregados {len(df)} registros")
     except Exception as e:
         print(f"❌ Error loading CSV: {e}")
         return
@@ -302,19 +302,19 @@ def main():
     recent_df = df[df['is_recent']].copy()
     total_recent = len(recent_df)
     
-    print(f"🎯 Filtered to recent graduates (2024-2025): {total_recent}/{len(df)} records ({total_recent/len(df)*100:.1f}%)")
+    print(f"🎯 Filtrado para formandos recentes (2024-2025): {total_recent}/{len(df)} registros ({total_recent/len(df)*100:.1f}%)")
     
     # Get processing options based on recent graduates only
     remaining_count = total_recent - len(existing_names)
-    print(f"\nProcessing options ({remaining_count} recent unprocessed records remaining):")
-    print(f"1. Quick test (next 10 recent unprocessed)")
-    print(f"2. Small batch (next 50 recent unprocessed)")
-    print(f"3. Medium batch (next 200 recent unprocessed)")
-    print(f"4. Large batch (next 500 recent unprocessed)")
-    print(f"5. 🚀 PRODUCTION MODE - All remaining recent unprocessed records")
-    print(f"6. Custom amount (specify how many recent unprocessed)")
+    print(f"\nOpções de processamento ({remaining_count} registros recentes não processados restantes):")
+    print(f"1. Teste rápido (próximos 10 recentes não processados)")
+    print(f"2. Lote pequeno (próximos 50 recentes não processados)")
+    print(f"3. Lote médio (próximos 200 recentes não processados)")
+    print(f"4. Lote grande (próximos 500 recentes não processados)")
+    print(f"5. 🚀 MODO PRODUÇÃO - Todos os registros recentes não processados restantes")
+    print(f"6. Quantidade personalizada (especifique quantos recentes não processados)")
     
-    choice = input("\nEnter choice (1-6): ").strip()
+    choice = input("\nEscolha uma opção (1-6): ").strip()
     
     # Helper function to get next unprocessed recent graduates
     def get_next_unprocessed(df, existing_names, max_count):
@@ -331,12 +331,12 @@ def main():
         df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 10)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All recent graduates already processed! No new users to search.")
+            print("✅ Todos os formandos recentes já foram processados! Nenhum novo usuário para buscar.")
             return
         elif actual_count < 10:
-            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 10 requested)")
+            print(f"📊 Encontrados {actual_count} registros recentes não processados restantes (menos que 10 solicitados)")
         else:
-            print(f"📊 Found next {actual_count} recent unprocessed records for quick test")
+            print(f"📊 Encontrados próximos {actual_count} registros recentes não processados para teste rápido")
     elif choice == '2':
         df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 50)
         skip_existing = True
@@ -344,9 +344,9 @@ def main():
             print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 50:
-            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 50 requested)")
+            print(f"📊 Encontrados {actual_count} registros recentes não processados restantes (menos que 50 solicitados)")
         else:
-            print(f"📊 Found next {actual_count} recent unprocessed records for small batch")
+            print(f"📊 Encontrados próximos {actual_count} registros recentes não processados para lote pequeno")
     elif choice == '3':
         df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 200)
         skip_existing = True
@@ -354,9 +354,9 @@ def main():
             print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 200:
-            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 200 requested)")
+            print(f"📊 Encontrados {actual_count} registros recentes não processados restantes (menos que 200 solicitados)")
         else:
-            print(f"📊 Found next {actual_count} recent unprocessed records for medium batch")
+            print(f"📊 Encontrados próximos {actual_count} registros recentes não processados para lote médio")
     elif choice == '4':
         df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 500)
         skip_existing = True
@@ -364,30 +364,30 @@ def main():
             print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 500:
-            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 500 requested)")
+            print(f"📊 Encontrados {actual_count} registros recentes não processados restantes (menos que 500 solicitados)")
         else:
-            print(f"📊 Found next {actual_count} recent unprocessed records for large batch")
+            print(f"📊 Encontrados próximos {actual_count} registros recentes não processados para lote grande")
     elif choice == '5':
         df_to_process = recent_df
         skip_existing = True
-        print("🚀 PRODUCTION MODE ACTIVATED (Recent Graduates Only)")
-        print("   - Will skip people already found")
-        print("   - Will process all recent graduates (2024-2025) efficiently")
-        print("   - Can be safely interrupted and resumed")
+        print("🚀 MODO PRODUÇÃO ATIVADO (Apenas Formandos Recentes)")
+        print("   - Pulará pessoas já encontradas")
+        print("   - Processará todos os formandos recentes (2024-2025) eficientemente")
+        print("   - Pode ser interrompido e retomado com segurança")
     elif choice == '6':
         try:
-            count = int(input("How many recent unprocessed records to search: "))
+            count = int(input("Quantos registros recentes não processados buscar: "))
             df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, count)
             skip_existing = True
             if actual_count == 0:
                 print("✅ All recent graduates already processed! No new users to search.")
                 return
             elif actual_count < count:
-                print(f"📊 Found {actual_count} remaining recent unprocessed records (less than {count} requested)")
+                print(f"📊 Encontrados {actual_count} registros recentes não processados restantes (menos que {count} solicitados)")
             else:
-                print(f"📊 Found next {actual_count} recent unprocessed records for custom batch")
+                print(f"📊 Encontrados próximos {actual_count} registros recentes não processados para lote personalizado")
         except ValueError:
-            print("❌ Invalid number entered. Using default 10 records.")
+            print("❌ Número inválido inserido. Usando padrão de 10 registros.")
             df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 10)
             skip_existing = True
             if actual_count == 0:
@@ -406,16 +406,16 @@ def main():
         df_to_process = df_to_process[~df_to_process['Nome'].str.strip().isin(existing_names)]
         skipped_count = original_count - len(df_to_process)
         
-        print(f"\n📊 Production mode filtering (Recent Graduates):")
-        print(f"   📋 Total recent graduates: {original_count}")
-        print(f"   ⏭️  Already processed: {skipped_count}")
-        print(f"   🎯 Remaining to process: {len(df_to_process)}")
+        print(f"\n📊 Filtragem do modo produção (Formandos Recentes):")
+        print(f"   📋 Total de formandos recentes: {original_count}")
+        print(f"   ⏭️  Já processados: {skipped_count}")
+        print(f"   🎯 Restantes para processar: {len(df_to_process)}")
         
         if len(df_to_process) == 0:
-            print("✅ All recent graduates already processed! Nothing to do.")
+            print("✅ Todos os formandos recentes já foram processados! Nada a fazer.")
             return
     
-    print(f"\n🎯 Processing {len(df_to_process)} records")
+    print(f"\n🎯 Processando {len(df_to_process)} registros")
     
     # Confirm before large runs
     if len(df_to_process) > 100:
@@ -463,9 +463,9 @@ def main():
                         current_existing_data = existing_data
                     
                     total_in_master = update_master_success_file(new_success_records, current_existing_data)
-                    print(f"💾 Updated master success file: {total_in_master} total profiles")
+                    print(f"💾 Arquivo mestre de sucesso atualizado: {total_in_master} perfis totais")
                 else:
-                    print(f"💾 No new successful profiles to add to master file")
+                    print(f"💾 Nenhum novo perfil de sucesso para adicionar ao arquivo mestre")
             
             # Longer break between batches
             if batch_num < total_batches:
@@ -474,9 +474,9 @@ def main():
         
         # Final results
         print(f"\n" + "=" * 60)
-        print("🎉 PROCESSING COMPLETE!")
+        print("🎉 PROCESSAMENTO COMPLETO!")
         print("=" * 60)
-        print(f"✅ Total found: {total_found}/{total_records} ({total_found/total_records*100:.1f}%)")
+        print(f"✅ Total encontrado: {total_found}/{total_records} ({total_found/total_records*100:.1f}%)")
         
         # Final update to master success file (no session backup needed)
         new_success_records = [r for r in all_results if r['Match Status'] == 'Found' and r['LinkedIn URL']]
@@ -489,48 +489,48 @@ def main():
                 current_existing_data = existing_data
             
             total_in_master = update_master_success_file(new_success_records, current_existing_data)
-            print(f"💾 Master success file updated: {total_in_master} total unique profiles")
+            print(f"💾 Arquivo mestre de sucesso atualizado: {total_in_master} perfis únicos totais")
         else:
-            print(f"💾 No new profiles found in this session")
+            print(f"💾 Nenhum novo perfil encontrado nesta sessão")
         
         # Load and show current master file stats
         try:
             with open('linkedin_success_master.json', 'r', encoding='utf-8') as f:
                 master_data = json.load(f)
             
-            print(f"🎯 Master file contains {len(master_data)} unique LinkedIn profiles")
+            print(f"🎯 Arquivo mestre contém {len(master_data)} perfis únicos do LinkedIn")
             
             # Show sample of found profiles
             if master_data:
-                print(f"\n🎯 Sample from master file:")
+                print(f"\n🎯 Amostra do arquivo mestre:")
                 for i, result in enumerate(master_data[-10:], 1):  # Show last 10 added
                     print(f"   {i:2d}. {result['Nome']:<30} -> {result['LinkedIn URL']}")
                 
                 if len(master_data) > 10:
-                    print(f"   ... total of {len(master_data)} profiles in master file")
+                    print(f"   ... total de {len(master_data)} perfis no arquivo mestre")
         
         except Exception as e:
             print(f"❌ Error reading master file: {e}")
     
     except KeyboardInterrupt:
-        print(f"\n⚠️  Process interrupted by user")
+        print(f"\n⚠️  Processo interrompido pelo usuário")
         # Save partial results to master file only
         if 'all_results' in locals() and all_results:
             new_success_records = [r for r in all_results if r['Match Status'] == 'Found' and r['LinkedIn URL']]
             
             if new_success_records:
                 total_in_master = update_master_success_file(new_success_records, existing_data)
-                print(f"💾 Progress saved to master file: {total_in_master} total profiles")
+                print(f"💾 Progresso salvo no arquivo mestre: {total_in_master} perfis totais")
             else:
-                print(f"💾 No new profiles found before interruption")
+                print(f"💾 Nenhum novo perfil encontrado antes da interrupção")
             
-            print("🔄 You can resume by running the script again - it will skip completed work")
+            print("🔄 Você pode retomar executando o script novamente - ele pulará o trabalho concluído")
     
     except Exception as e:
-        print(f"❌ Error during processing: {e}")
+        print(f"❌ Erro durante o processamento: {e}")
     
     finally:
-        print("\n🔧 Closing browser...")
+        print("\n🔧 Fechando navegador...")
         driver.quit()
 
 if __name__ == "__main__":

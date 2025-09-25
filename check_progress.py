@@ -22,7 +22,7 @@ def is_recent_graduate(graduation_date_str):
 
 def check_progress():
     """Check current progress of LinkedIn searches (recent graduates only)."""
-    print("📊 LinkedIn Search Progress Report (2024-2025 Graduates)")
+    print("📊 Relatório de Progresso da Busca LinkedIn (Formandos 2024-2025)")
     print("=" * 60)
     
     # Load CSV to get total count and filter recent graduates
@@ -34,19 +34,19 @@ def check_progress():
         recent_graduates = df[df['Data da Colação'].apply(is_recent_graduate)]
         recent_count = len(recent_graduates)
         
-        print(f"📋 Total records in CSV: {total_records}")
-        print(f"🎯 Recent graduates (2024-2025): {recent_count}")
-        print(f"📊 Filtering to recent graduates: {recent_count/total_records*100:.1f}% of dataset")
+        print(f"📋 Total de registros no CSV: {total_records}")
+        print(f"🎯 Formandos recentes (2024-2025): {recent_count}")
+        print(f"📊 Filtrando para formandos recentes: {recent_count/total_records*100:.1f}% do conjunto de dados")
         
     except Exception as e:
-        print(f"❌ Error loading CSV: {e}")
+        print(f"❌ Erro ao carregar CSV: {e}")
         return
     
     # Check master success file
     master_file = 'linkedin_success_master.json'
     
     if not os.path.exists(master_file):
-        print("📝 No master success file found yet")
+        print("📝 Nenhum arquivo mestre de sucesso encontrado ainda")
         return
     
     try:
@@ -57,18 +57,18 @@ def check_progress():
         mod_time = os.path.getmtime(master_file)
         mod_datetime = datetime.fromtimestamp(mod_time)
         
-        print(f"\n📄 Master success file: {master_file}")
-        print(f"🕒 Last updated: {mod_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"\n📄 Arquivo mestre de sucesso: {master_file}")
+        print(f"🕒 Última atualização: {mod_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Summary (based on recent graduates only)
-        print(f"\n📈 PROGRESS (Recent Graduates 2024-2025):")
-        print(f"   ✅ Unique profiles found: {len(master_data)}")
-        print(f"   📊 Progress: {len(master_data)}/{recent_count} ({len(master_data)/recent_count*100:.1f}%)")
-        print(f"   📋 Remaining recent graduates: {recent_count - len(master_data)} records")
+        print(f"\n📈 PROGRESSO (Formandos Recentes 2024-2025):")
+        print(f"   ✅ Perfis únicos encontrados: {len(master_data)}")
+        print(f"   📊 Progresso: {len(master_data)}/{recent_count} ({len(master_data)/recent_count*100:.1f}%)")
+        print(f"   📋 Formandos recentes restantes: {recent_count - len(master_data)} registros")
         
         # Show sample of found profiles
         if master_data:
-            print(f"\n🎯 Recent profiles found:")
+            print(f"\n🎯 Perfis recentes encontrados:")
             
             # Show last 10 added profiles
             recent_profiles = master_data[-10:] if len(master_data) >= 10 else master_data
@@ -78,15 +78,15 @@ def check_progress():
                 url = record.get('LinkedIn URL', '')
                 updated = record.get('Last Updated', '')
                 print(f"   {i:2d}. {name:<30} -> {url}")
-                print(f"       Updated: {updated}")
+                print(f"       Atualizado: {updated}")
             
             if len(master_data) > 10:
-                print(f"   ... showing last 10 of {len(master_data)} total profiles")
+                print(f"   ... mostrando últimos 10 de {len(master_data)} perfis totais")
         
         # Clean and simple - only show master file info
     
     except Exception as e:
-        print(f"❌ Error reading master file: {e}")
+        print(f"❌ Erro ao ler arquivo mestre: {e}")
 
 if __name__ == "__main__":
     check_progress()
