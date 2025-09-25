@@ -53,45 +53,75 @@ def generate_unique_id(existing_ids):
         if new_id not in existing_ids:
             return new_id
 
+def is_recent_graduate(graduation_date_str):
+    """Check if graduate is from current year (2025) or previous year (2024)."""
+    try:
+        from datetime import datetime
+        current_year = datetime.now().year
+        
+        # Parse the graduation date (DD/MM/YYYY format)
+        graduation_date = datetime.strptime(graduation_date_str, '%d/%m/%Y')
+        graduation_year = graduation_date.year
+        
+        # Only accept graduates from current year or previous year
+        return graduation_year >= current_year - 1  # 2024 and 2025
+        
+    except Exception:
+        # If date parsing fails, exclude the record
+        return False
+
 def update_master_success_file(new_success_records, existing_data):
-    """Update the master success file with new records and unique IDs."""
+    """Update the master success file with new records and unique IDs (recent graduates only)."""
     master_file = 'linkedin_success_master.json'
     
-    # Combine existing and new data
-    all_data = existing_data.copy()
+    # Filter existing data to only include recent graduates
+    recent_existing_data = [
+        record for record in existing_data 
+        if is_recent_graduate(record.get('Data da Colação', ''))
+    ]
     
-    # Get existing URLs and IDs
-    existing_urls = {record.get('LinkedIn URL', '') for record in all_data}
-    existing_ids = {record.get('id', '') for record in all_data if record.get('id')}
+    # Get existing URLs and IDs from recent graduates only
+    existing_urls = {record.get('LinkedIn URL', '') for record in recent_existing_data}
+    existing_ids = {record.get('id', '') for record in recent_existing_data if record.get('id')}
     
-    # Add new successful records with unique IDs
+    # Add new successful records with unique IDs (only recent graduates)
+    added_count = 0
     for record in new_success_records:
         linkedin_url = record.get('LinkedIn URL', '')
-        if linkedin_url and linkedin_url not in existing_urls:
+        graduation_date = record.get('Data da Colação', '')
+        
+        # Only add if it's a recent graduate and URL is not already present
+        if (linkedin_url and linkedin_url not in existing_urls and 
+            is_recent_graduate(graduation_date)):
+            
             # Generate unique ID for this profile
             unique_id = generate_unique_id(existing_ids)
             existing_ids.add(unique_id)
             
-            all_data.append({
+            recent_existing_data.append({
                 'id': unique_id,
                 'Nome': record['Nome'],
                 'Curso': record['Curso'],
                 'Faculdade': record['Faculdade'],
-                'Data da Colação': record['Data da Colação'],
+                'Data da Colação': graduation_date,
                 'LinkedIn URL': linkedin_url,
                 'Last Updated': record['Last Updated']
             })
             existing_urls.add(linkedin_url)
+            added_count += 1
     
-    # Save updated master file
+    # Save updated master file (only recent graduates)
     try:
         with open(master_file, 'w', encoding='utf-8') as f:
-            json.dump(all_data, f, ensure_ascii=False, indent=2)
+            json.dump(recent_existing_data, f, ensure_ascii=False, indent=2)
         
-        return len(all_data)
+        if added_count > 0:
+            print(f"   📅 Added {added_count} recent graduates (2024-2025) to master file")
+        
+        return len(recent_existing_data)
     except Exception as e:
         print(f"❌ Error saving master file: {e}")
-        return len(existing_data)
+        return len(recent_existing_data)
 
 def search_linkedin_profile(driver, name, university):
     """Search for LinkedIn profile with optimized query."""
@@ -210,7 +240,7 @@ def process_batch(driver, df_batch, batch_num, total_batches, existing_names=Non
     return results, found_count
 
 def load_existing_results():
-    """Load existing success results from the master file."""
+    """Load existing success results from the master file (recent graduates only)."""
     existing_names = set()
     existing_urls = set()
     existing_data = []
@@ -220,13 +250,30 @@ def load_existing_results():
     if os.path.exists(master_file):
         try:
             with open(master_file, 'r', encoding='utf-8') as f:
-                existing_data = json.load(f)
-                
-            for record in existing_data:
-                existing_names.add(record.get('Nome', '').strip())
-                existing_urls.add(record.get('LinkedIn URL', '').strip())
+                all_data = json.load(f)
             
-            print(f"✅ Loaded {len(existing_data)} existing profiles from {master_file}")
+            # Filter to only include recent graduates (2024-2025)
+            recent_data = []
+            for record in all_data:
+                graduation_date = record.get('Data da Colação', '')
+                if is_recent_graduate(graduation_date):
+                    recent_data.append(record)
+                    existing_names.add(record.get('Nome', '').strip())
+                    existing_urls.add(record.get('LinkedIn URL', '').strip())
+            
+            existing_data = recent_data
+            
+            # If we filtered out old graduates, update the master file
+            if len(recent_data) < len(all_data):
+                filtered_count = len(all_data) - len(recent_data)
+                print(f"🔄 Filtered out {filtered_count} older graduates (keeping only 2024-2025)")
+                
+                # Save the filtered data back to master file
+                with open(master_file, 'w', encoding='utf-8') as f:
+                    json.dump(recent_data, f, ensure_ascii=False, indent=2)
+            
+            print(f"✅ Loaded {len(existing_data)} recent graduates (2024-2025) from {master_file}")
+            
         except Exception as e:
             print(f"❌ Error loading {master_file}: {e}")
             existing_data = []
@@ -250,21 +297,28 @@ def main():
     # Load existing results to avoid duplicates
     existing_names, existing_urls, existing_data = load_existing_results()
     
-    # Get processing options
-    remaining_count = len(df) - len(existing_names)
-    print(f"\nProcessing options ({remaining_count} unprocessed records remaining):")
-    print(f"1. Quick test (next 10 unprocessed)")
-    print(f"2. Small batch (next 50 unprocessed)")
-    print(f"3. Medium batch (next 200 unprocessed)")
-    print(f"4. Large batch (next 500 unprocessed)")
-    print(f"5. 🚀 PRODUCTION MODE - All remaining unprocessed records")
-    print(f"6. Custom amount (specify how many unprocessed)")
+    # Filter dataset to only include recent graduates (2024-2025)
+    df['is_recent'] = df['Data da Colação'].apply(is_recent_graduate)
+    recent_df = df[df['is_recent']].copy()
+    total_recent = len(recent_df)
+    
+    print(f"🎯 Filtered to recent graduates (2024-2025): {total_recent}/{len(df)} records ({total_recent/len(df)*100:.1f}%)")
+    
+    # Get processing options based on recent graduates only
+    remaining_count = total_recent - len(existing_names)
+    print(f"\nProcessing options ({remaining_count} recent unprocessed records remaining):")
+    print(f"1. Quick test (next 10 recent unprocessed)")
+    print(f"2. Small batch (next 50 recent unprocessed)")
+    print(f"3. Medium batch (next 200 recent unprocessed)")
+    print(f"4. Large batch (next 500 recent unprocessed)")
+    print(f"5. 🚀 PRODUCTION MODE - All remaining recent unprocessed records")
+    print(f"6. Custom amount (specify how many recent unprocessed)")
     
     choice = input("\nEnter choice (1-6): ").strip()
     
-    # Helper function to get next unprocessed records
+    # Helper function to get next unprocessed recent graduates
     def get_next_unprocessed(df, existing_names, max_count):
-        """Get the next unprocessed records up to max_count."""
+        """Get the next unprocessed recent graduates up to max_count."""
         unprocessed = df[~df['Nome'].str.strip().isin(existing_names)]
         
         if len(unprocessed) == 0:
@@ -274,91 +328,91 @@ def main():
         return unprocessed.head(actual_count), actual_count
     
     if choice == '1':
-        df_to_process, actual_count = get_next_unprocessed(df, existing_names, 10)
+        df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 10)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All records already processed! No new users to search.")
+            print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 10:
-            print(f"📊 Found {actual_count} remaining unprocessed records (less than 10 requested)")
+            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 10 requested)")
         else:
-            print(f"📊 Found next {actual_count} unprocessed records for quick test")
+            print(f"📊 Found next {actual_count} recent unprocessed records for quick test")
     elif choice == '2':
-        df_to_process, actual_count = get_next_unprocessed(df, existing_names, 50)
+        df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 50)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All records already processed! No new users to search.")
+            print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 50:
-            print(f"📊 Found {actual_count} remaining unprocessed records (less than 50 requested)")
+            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 50 requested)")
         else:
-            print(f"📊 Found next {actual_count} unprocessed records for small batch")
+            print(f"📊 Found next {actual_count} recent unprocessed records for small batch")
     elif choice == '3':
-        df_to_process, actual_count = get_next_unprocessed(df, existing_names, 200)
+        df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 200)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All records already processed! No new users to search.")
+            print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 200:
-            print(f"📊 Found {actual_count} remaining unprocessed records (less than 200 requested)")
+            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 200 requested)")
         else:
-            print(f"📊 Found next {actual_count} unprocessed records for medium batch")
+            print(f"📊 Found next {actual_count} recent unprocessed records for medium batch")
     elif choice == '4':
-        df_to_process, actual_count = get_next_unprocessed(df, existing_names, 500)
+        df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 500)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All records already processed! No new users to search.")
+            print("✅ All recent graduates already processed! No new users to search.")
             return
         elif actual_count < 500:
-            print(f"📊 Found {actual_count} remaining unprocessed records (less than 500 requested)")
+            print(f"📊 Found {actual_count} remaining recent unprocessed records (less than 500 requested)")
         else:
-            print(f"📊 Found next {actual_count} unprocessed records for large batch")
+            print(f"📊 Found next {actual_count} recent unprocessed records for large batch")
     elif choice == '5':
-        df_to_process = df
+        df_to_process = recent_df
         skip_existing = True
-        print("🚀 PRODUCTION MODE ACTIVATED")
+        print("🚀 PRODUCTION MODE ACTIVATED (Recent Graduates Only)")
         print("   - Will skip people already found")
-        print("   - Will process entire dataset efficiently")
+        print("   - Will process all recent graduates (2024-2025) efficiently")
         print("   - Can be safely interrupted and resumed")
     elif choice == '6':
         try:
-            count = int(input("How many unprocessed records to search: "))
-            df_to_process, actual_count = get_next_unprocessed(df, existing_names, count)
+            count = int(input("How many recent unprocessed records to search: "))
+            df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, count)
             skip_existing = True
             if actual_count == 0:
-                print("✅ All records already processed! No new users to search.")
+                print("✅ All recent graduates already processed! No new users to search.")
                 return
             elif actual_count < count:
-                print(f"📊 Found {actual_count} remaining unprocessed records (less than {count} requested)")
+                print(f"📊 Found {actual_count} remaining recent unprocessed records (less than {count} requested)")
             else:
-                print(f"📊 Found next {actual_count} unprocessed records for custom batch")
+                print(f"📊 Found next {actual_count} recent unprocessed records for custom batch")
         except ValueError:
             print("❌ Invalid number entered. Using default 10 records.")
-            df_to_process, actual_count = get_next_unprocessed(df, existing_names, 10)
+            df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 10)
             skip_existing = True
             if actual_count == 0:
-                print("✅ All records already processed! No new users to search.")
+                print("✅ All recent graduates already processed! No new users to search.")
                 return
     else:
-        df_to_process, actual_count = get_next_unprocessed(df, existing_names, 10)
+        df_to_process, actual_count = get_next_unprocessed(recent_df, existing_names, 10)
         skip_existing = True
         if actual_count == 0:
-            print("✅ All records already processed! No new users to search.")
+            print("✅ All recent graduates already processed! No new users to search.")
             return
     
-    # For production mode, still need to filter since we process the full dataset
+    # For production mode, still need to filter since we process the full recent dataset
     if choice == '5' and skip_existing and existing_names:
         original_count = len(df_to_process)
         df_to_process = df_to_process[~df_to_process['Nome'].str.strip().isin(existing_names)]
         skipped_count = original_count - len(df_to_process)
         
-        print(f"\n📊 Production mode filtering:")
-        print(f"   📋 Total records: {original_count}")
+        print(f"\n📊 Production mode filtering (Recent Graduates):")
+        print(f"   📋 Total recent graduates: {original_count}")
         print(f"   ⏭️  Already processed: {skipped_count}")
         print(f"   🎯 Remaining to process: {len(df_to_process)}")
         
         if len(df_to_process) == 0:
-            print("✅ All records already processed! Nothing to do.")
+            print("✅ All recent graduates already processed! Nothing to do.")
             return
     
     print(f"\n🎯 Processing {len(df_to_process)} records")

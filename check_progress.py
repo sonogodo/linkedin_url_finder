@@ -4,16 +4,40 @@ import os
 import pandas as pd
 from datetime import datetime
 
+def is_recent_graduate(graduation_date_str):
+    """Check if graduate is from current year (2025) or previous year (2024)."""
+    try:
+        from datetime import datetime
+        current_year = datetime.now().year
+        
+        # Parse the graduation date (DD/MM/YYYY format)
+        graduation_date = datetime.strptime(graduation_date_str, '%d/%m/%Y')
+        graduation_year = graduation_date.year
+        
+        # Only accept graduates from current year or previous year
+        return graduation_year >= current_year - 1  # 2024 and 2025
+        
+    except Exception:
+        return False
+
 def check_progress():
-    """Check current progress of LinkedIn searches."""
-    print("📊 LinkedIn Search Progress Report")
-    print("=" * 50)
+    """Check current progress of LinkedIn searches (recent graduates only)."""
+    print("📊 LinkedIn Search Progress Report (2024-2025 Graduates)")
+    print("=" * 60)
     
-    # Load CSV to get total count
+    # Load CSV to get total count and filter recent graduates
     try:
         df = pd.read_csv('new_graduates.csv', encoding='utf-8')
         total_records = len(df)
+        
+        # Filter for recent graduates only
+        recent_graduates = df[df['Data da Colação'].apply(is_recent_graduate)]
+        recent_count = len(recent_graduates)
+        
         print(f"📋 Total records in CSV: {total_records}")
+        print(f"🎯 Recent graduates (2024-2025): {recent_count}")
+        print(f"📊 Filtering to recent graduates: {recent_count/total_records*100:.1f}% of dataset")
+        
     except Exception as e:
         print(f"❌ Error loading CSV: {e}")
         return
@@ -36,11 +60,11 @@ def check_progress():
         print(f"\n📄 Master success file: {master_file}")
         print(f"🕒 Last updated: {mod_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
         
-        # Summary
-        print(f"\n📈 PROGRESS:")
+        # Summary (based on recent graduates only)
+        print(f"\n📈 PROGRESS (Recent Graduates 2024-2025):")
         print(f"   ✅ Unique profiles found: {len(master_data)}")
-        print(f"   📊 Progress: {len(master_data)}/{total_records} ({len(master_data)/total_records*100:.1f}%)")
-        print(f"   📋 Remaining: {total_records - len(master_data)} records")
+        print(f"   📊 Progress: {len(master_data)}/{recent_count} ({len(master_data)/recent_count*100:.1f}%)")
+        print(f"   📋 Remaining recent graduates: {recent_count - len(master_data)} records")
         
         # Show sample of found profiles
         if master_data:
